@@ -16,17 +16,17 @@ jobs:
 
       - name: Auto-Fix and Build Gradle Project
         run: |
-          # Sahi directory 'SDM' ke andar enter karein
           cd SDM
           
           # 1. compileSdk aur targetSdk ko stable version (34) par force update karein
           find . -name "build.gradle.kts" -exec sed -i 's/compileSdk = .*/compileSdk = 34/g' {} +
           find . -name "build.gradle.kts" -exec sed -i 's/targetSdk = .*/targetSdk = 34/g' {} +
           
-          # 2. Release signing ko hata kar debug keystore configuration lagayein
-          find . -name "build.gradle.kts" -exec sed -i 's/signingConfig = signingConfigs.getByName("release")/signingConfig = signingConfigs.getByName("debugConfig")/g' {} +
+          # 2. AI Studio ke custom ya faulty release signing configs ko poori tarah mita dein (Bypass)
+          find . -name "build.gradle.kts" -exec sed -i '/signingConfig = signingConfigs.getByName("release")/d' {} +
+          find . -name "build.gradle.kts" -exec sed -i '/signingConfig = .*/d' {} +
           
-          # 3. Wrapper build generator ko run karein aur compile karein
+          # 3. Direct build command run karein
           gradle wrapper --gradle-version 8.4
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
