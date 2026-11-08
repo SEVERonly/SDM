@@ -14,22 +14,17 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Auto-Fix AI Studio Mismatch
+      - name: Auto-Fix and Build
         run: |
-          cd SDM
-          # compileSdk aur targetSdk ko automatic fixed value (34) par badlein
+          # 1. Puraane config code ko global value (34) par badlein
           find . -name "build.gradle.kts" -exec sed -i 's/compileSdk = .*/compileSdk = 34/g' {} +
           find . -name "build.gradle.kts" -exec sed -i 's/targetSdk = .*/targetSdk = 34/g' {} +
           
-          # Release signing ko hata kar debug keystore enable karein
+          # 2. Release signing ko hata kar debug keystore configure karein
           find . -name "build.gradle.kts" -exec sed -i 's/signingConfig = signingConfigs.getByName("release")/signingConfig = signingConfigs.getByName("debugConfig")/g' {} +
           
-          # Wrapper generate karein
+          # 3. Direct setup generator run karein
           gradle wrapper --gradle-version 8.4
-
-      - name: Build with Gradle
-        run: |
-          cd SDM
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
@@ -37,4 +32,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: sdm-smart-download-manager
-          path: "SDM/app/build/outputs/apk/debug/app-debug.apk"
+          path: "**/build/outputs/apk/debug/app-debug.apk"
