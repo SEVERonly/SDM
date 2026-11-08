@@ -14,17 +14,19 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Auto-Fix and Generate Gradle
+      - name: Auto-Fix AI Studio Mismatch & Missing Wrapper
         run: |
-          # Agar aapka main folder hi repository hai, toh direct run hoga
-          # Agar repository ke andar SDM naam ka folder hai, toh yeh command automatic wahan chali jayegi
+          # Agar main repository ke andar direct files hain ya SDM folder hai, dono handle karega
           if [ -d "SDM" ]; then cd SDM; fi
           
-          # SDK versions ko update karna taaki error na aaye
-          find . -name "build.gradle*" -exec sed -i 's/compileSdk = [0-9]*/compileSdk = 34/g' {} +
-          find . -name "build.gradle*" -exec sed -i 's/targetSdk = [0-9]*/targetSdk = 34/g' {} +
+          # 1. AI Studio ki faulty compileSdk line ko standard number (34) se replace karein
+          find . -name "build.gradle.kts" -exec sed -i 's/compileSdk = .*/compileSdk = 34/g' {} +
+          find . -name "build.gradle.kts" -exec sed -i 's/targetSdk = .*/targetSdk = 34/g' {} +
           
-          # Missing gradlew file ko generate karein
+          # 2. AI Studio ke custom keystore settings ko override karein taaki build debug config par chale
+          find . -name "build.gradle.kts" -exec sed -i 's/signingConfig = signingConfigs.getByName("release")/signingConfig = signingConfigs.getByName("debugConfig")/g' {} +
+          
+          # 3. Missing gradlew command generator chalaein
           gradle wrapper --gradle-version 8.4
 
       - name: Build with Gradle
@@ -33,8 +35,8 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      - name: Upload APK
+      - name: Upload Final APK
         uses: actions/upload-artifact@v4
         with:
-          name: my-app-apk
+          name: sdm-smart-download-manager
           path: "**/build/outputs/apk/debug/app-debug.apk"
