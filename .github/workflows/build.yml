@@ -20,10 +20,10 @@ jobs:
           find . -name "build.gradle.kts" -exec sed -i 's/compileSdk = .*/compileSdk = 34/g' {} +
           find . -name "build.gradle.kts" -exec sed -i 's/targetSdk = .*/targetSdk = 34/g' {} +
           
-          # 2. AI Studio ke custom release credentials ko debug config se replace karein
+          # 2. Custom release credentials ko debug config se replace karein
           find . -name "build.gradle.kts" -exec sed -i 's/signingConfig = signingConfigs.getByName("release")/signingConfig = signingConfigs.getByName("debugConfig")/g' {} +
           
-          # 3. Missing wrapper build generator ko execute karein
+          # 3. Direct root par wrapper generate karke build chalayein
           gradle wrapper --gradle-version 8.4
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
