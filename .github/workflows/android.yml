@@ -1,40 +1,35 @@
-name: Android CI
-
-on:
-  push:
-    branches: [ "main" ]
+name: Build Android APK
+on: [push, workflow_dispatch]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
+      - name: Extract Project ZIP
+        run: unzip SDM.zip -d .
 
-    - name: Locate and Build Project
-      run: |
-        # Search for directory containing settings.gradle or build.gradle
-        PROJECT_DIR=$(find . -name "settings.gradle*" -o -name "build.gradle*" | head -n 1 | xargs dirname)
-        echo "Navigating to project directory: $PROJECT_DIR"
-        cd "$PROJECT_DIR"
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
 
-        # Execute Gradle build
-        if [ -f "./gradlew" ]; then
+      - name: Generate Gradle Wrapper
+        run: |
+          cd SDM
+          gradle wrapper
+
+      - name: Build with Gradle
+        run: |
+          cd SDM
           chmod +x gradlew
           ./gradlew assembleDebug
-        else
-          gradle assembleDebug
-        fi
 
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: SDM-App-Debug
-        path: '**/build/outputs/apk/debug/*.apk'
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-app-apk
+          path: SDM/app/build/outputs/apk/debug/app-debug.apk
