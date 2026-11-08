@@ -1,0 +1,6 @@
+{
+  "name": "SDM",
+  "description": "Smart Download Manager with multi-threaded downloading, dynamic speed limiter, browser link capture, and package installer.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
